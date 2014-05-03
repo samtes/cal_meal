@@ -1,0 +1,22 @@
+#!/usr/bin/env ruby
+$stderr = $stdout
+
+def menu
+<<EOS
+What do you want to do? (Enter the number for your choice)
+1. Create a Diet Cal.
+2. View your Diet Cal.
+3. Edit your Diet Cal.
+4. Delete your Diet Cal.
+EOS
+end
+
+puts menu
+
+=begin
+puts "What do you want to do? (Enter the number for your choice)"
+puts "1. Create a Diet Cal."
+puts "2. View your Diet Cal."
+puts "3. Edit your Diet Cal."
+puts "4. Delete your Diet Cal."
+=end
