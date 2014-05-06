@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-$stderr = $stdout
+#$stderr = $stdout
 
-def menu
+def main_menu
 <<EOS
 What do you want to do? (Enter the number for your choice)
 1. Create a Diet Cal.
@@ -11,12 +11,58 @@ What do you want to do? (Enter the number for your choice)
 EOS
 end
 
-puts menu
+def menu_1_select
+<<EOS
+Select the type of diet (Enter the number for your choice)
+1. Vegeterian
+2. Vegan
+3. Full
+EOS
+end
 
-=begin
-puts "What do you want to do? (Enter the number for your choice)"
-puts "1. Create a Diet Cal."
-puts "2. View your Diet Cal."
-puts "3. Edit your Diet Cal."
-puts "4. Delete your Diet Cal."
-=end
+def sub_menu_1
+<<EOS
+How many meals a day? (Enter the number 1 2 3 ...)
+EOS
+end
+
+def menu_2_select
+<<EOS
+Enter your firstname followed by your passcode (Example <Sam 1234>)
+EOS
+end
+
+def diet_type(i)
+  types = ["vegeterian", "Vegan", "Full"]
+  types[i-1].capitalize
+end
+
+def generate_create_menu
+  puts menu_1_select
+  user_select = gets
+  return unless user_select
+  user_select.chomp!
+  if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
+    puts "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
+    generate_create_menu
+  else
+    puts "#{diet_type(user_select.to_i)} diet selected."
+  end
+end
+
+def generate_main_menu
+  puts main_menu
+  user_input = gets
+  return unless user_input
+  user_input.chomp!
+  if user_input.length < 1 || user_input.to_i < 1 || user_input.to_i > 4
+    puts "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4"
+    generate_main_menu
+  elsif user_input.to_i == 1
+    generate_create_menu
+  else
+    puts menu_2_select
+  end
+end
+
+puts generate_main_menu
