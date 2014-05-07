@@ -1,5 +1,12 @@
 require 'rspec/expectations'
 
+$LOAD_PATH << "lib"
+$LOAD_PATH << "models"
+
+require 'environment'
+require 'person'
+
+Environment.environment = "test"
 
 def run_cal_meal_with_input(*inputs)
   shell_output = ""
@@ -12,17 +19,15 @@ def run_cal_meal_with_input(*inputs)
   end
   shell_output
 end
-
 =begin
 RSpec.configure do |config|
   config.after(:each) do
-    Environment.database_connection.execute("DELETE FROM injuries;")
-    Environment.database_connection.execute("DELETE FROM injury_outcomes;")
+    #Environment.database_connection.execute("DELETE FROM injuries;")
+    #Environment.database_connection.execute("DELETE FROM injury_outcomes;")
     Environment.database_connection.execute("DELETE FROM people;")
   end
 end
 =end
-
 RSpec::Matchers.define :include_in_order do |*expected|
   match do |actual|
     input = actual.delete("\n")
@@ -31,3 +36,4 @@ RSpec::Matchers.define :include_in_order do |*expected|
     result.should be
   end
 end
+

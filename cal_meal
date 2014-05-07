@@ -1,5 +1,13 @@
 #!/usr/bin/env ruby
-#$stderr = $stdout
+
+$LOAD_PATH << "lib"
+$LOAD_PATH << "models"
+
+require 'environment'
+Environment.environment = ENV["ENVIRONMENT"] || "production"
+$stderr = $stdout
+
+require 'person'
 
 def main_menu
 <<EOS
@@ -22,7 +30,7 @@ end
 
 def sub_menu_1
 <<EOS
-How many meals a day? (Enter the number 1 2 3 ...)
+How many meals a day? (Enter the number between 3 and 9)
 EOS
 end
 
@@ -37,6 +45,34 @@ def diet_type(i)
   types[i-1].capitalize
 end
 
+def generate_meal_menu(diet)
+  puts sub_menu_1
+  diet_num = gets
+  return unless diet_num
+  diet_num.chomp!
+  if diet_num && diet_num.to_i > 2 && diet_num.to_i < 9
+    puts "#{diet_num} #{diet_type(diet)} meal diet added."
+  else
+    puts "'#{diet_num}' is not a valid entry."
+    generate_meal_menu(diet)
+  end
+end
+
+def add_user
+  puts "Enter your first name."
+  name = gets
+  return unless name
+  name.chomp!
+  person = Person.new(name)
+  if person.save
+    puts "#{name.capitalize} has been added."
+    record_desired_outcomes_for(person)
+  else
+    puts person.errors
+    add_user
+  end
+end
+
 def generate_create_menu
   puts menu_1_select
   user_select = gets
@@ -46,7 +82,7 @@ def generate_create_menu
     puts "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
     generate_create_menu
   else
-    puts "#{diet_type(user_select.to_i)} diet selected."
+    generate_meal_menu(user_select.to_i)
   end
 end
 
@@ -59,6 +95,12 @@ def generate_main_menu
     puts "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4"
     generate_main_menu
   elsif user_input.to_i == 1
+    #add_user
+    puts "Enter your first name."
+    name = gets
+    return unless name
+    name.chomp!
+    puts "#{name.capitalize} has been added."
     generate_create_menu
   else
     puts menu_2_select
