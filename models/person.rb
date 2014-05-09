@@ -18,7 +18,7 @@ class Person
     result[0][0]
   end
 
-  def create(name)
+  def self.create(name)
     person = Person.new(name)
     person.save
     person
@@ -36,9 +36,9 @@ class Person
 
   def save
     if self.valid?
-      statement = "Insert into pople (name) values (?);"
-      Environrment.database_connection.excute(statement, name)
-      @id = Environrment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
+      statement = "Insert into people (name) values (?);"
+      Environment.database_connection.execute(statement, name)
+      @id = Environment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
       true
     else
       false
@@ -48,7 +48,7 @@ class Person
   def valid?
     @errors = []
     if !name.match /[a-zA-Z]/
-      @errors << "'#{self.name}' is not a valid person name, as it does not include any letters"
+      @errors << "'#{self.name}' is not a valid person name, as it does not include any letters."
     end
     if Person.find_by_name(self.name)
       @errors << "#{self.name} already exists."

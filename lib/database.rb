@@ -11,9 +11,8 @@ class Database < SQLite3::Database
   end
 
   def create_tables
-    #self.execute("CREATE TABLE diets (id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(50))")
-    #self.execute("CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(50))")
-    #self.execute("CREATE TABLE injury_outcomes (id INTEGER PRIMARY KEY AUTOINCREMENT, person_id INTEGER, injury_id INTEGER, kill INTEGER)")
+    self.execute("CREATE TABLE people (id INTEGER PRIMARY KEY AUTOINCREMENT, name varchar(50))")
+    self.execute("CREATE TABLE diets (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, type varchar(50), freq INTEGER)")
   end
 
   def execute(statement, bind_vars = [])

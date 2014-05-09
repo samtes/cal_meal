@@ -110,15 +110,15 @@ EOS
     end
   end
   context "The sub menu 2 should display with valid entry" do
-    let(:shell_output){ run_cal_meal_with_input("1", "Sam", "1", "3") }
+    let(:shell_output){ run_cal_meal_with_input("1", "Tam", "1", "3") }
     it "should print the correct name added message" do
       shell_output.should include("3 Vegeterian meal diet added.")
     end
   end
   context "The sub menu 2 should display with valid entry" do
-    let(:shell_output){ run_cal_meal_with_input("1", "Sam") }
+    let(:shell_output){ run_cal_meal_with_input("1", "Bam") }
     it "should print the correct name added message" do
-      shell_output.should include("Sam has been added.")
+      shell_output.should include("Bam has been added.")
     end
   end
 end

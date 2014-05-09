@@ -5,12 +5,13 @@ $LOAD_PATH << "models"
 
 require 'environment'
 require 'person'
+require 'diet'
 
 Environment.environment = "test"
 
 def run_cal_meal_with_input(*inputs)
   shell_output = ""
-  IO.popen('./cal_meal', 'r+') do |pipe|
+  IO.popen('ENVIRONMENT=test ./cal_meal', 'r+') do |pipe|
     inputs.each do |input|
       pipe.puts input
     end
@@ -19,15 +20,14 @@ def run_cal_meal_with_input(*inputs)
   end
   shell_output
 end
-=begin
+
 RSpec.configure do |config|
   config.after(:each) do
-    #Environment.database_connection.execute("DELETE FROM injuries;")
-    #Environment.database_connection.execute("DELETE FROM injury_outcomes;")
     Environment.database_connection.execute("DELETE FROM people;")
+    Environment.database_connection.execute("DELETE FROM diets;")
   end
 end
-=end
+
 RSpec::Matchers.define :include_in_order do |*expected|
   match do |actual|
     input = actual.delete("\n")

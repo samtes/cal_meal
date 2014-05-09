@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'smart_colored/extend'
 
 $LOAD_PATH << "lib"
 $LOAD_PATH << "models"
