@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'smart_colored/extend'
 
 $LOAD_PATH << "lib"
 $LOAD_PATH << "models"
@@ -8,7 +7,9 @@ require 'environment'
 Environment.environment = ENV["ENVIRONMENT"] || "production"
 $stderr = $stdout
 
+#require 'smart_colored/extend'
 require 'person'
+require 'diet'
 
 def main_menu
 <<EOS
@@ -20,7 +21,7 @@ What do you want to do? (Enter the number for your choice)
 EOS
 end
 
-def menu_1_select
+def select_diet_menu
 <<EOS
 Select the type of diet (Enter the number for your choice)
 1. Vegeterian
@@ -35,55 +36,219 @@ How many meals a day? (Enter the number between 3 and 9)
 EOS
 end
 
-def menu_2_select
+def menu_2_first_name
 <<EOS
-Enter your firstname followed by your passcode (Example <Sam 1234>)
+Enter your firstname (Example <Sam>)
 EOS
 end
+
+def menu_2_passcode
+<<EOS
+Enter your passcode (Example <1234>)
+EOS
+end
+
 
 def diet_type(i)
   types = ["vegeterian", "Vegan", "Full"]
   types[i-1].capitalize
 end
 
-def generate_meal_menu(diet)
+def generate_meal_menu(diet, person)
   puts sub_menu_1
   diet_num = gets
   return unless diet_num
   diet_num.chomp!
   if diet_num && diet_num.to_i > 2 && diet_num.to_i < 9
-    puts "#{diet_num} #{diet_type(diet)} meal diet added."
+    type = diet_type(diet)
+    diet = Diet.new(person.id, type, diet_num.to_i)
+    if diet.save
+      puts "#{diet_num} #{type} meal diet added and your passcode is #{person.id}."
+    end
   else
-    puts "'#{diet_num}' is not a valid entry."
-    generate_meal_menu(diet)
+    puts diet.errors.to_s
+    generate_meal_menu(diet, person)
   end
 end
 
 def add_user
-  puts "Enter your first name."
-  name = gets
-  return unless name
-  name.chomp!
-  person = Person.new(name)
+  puts menu_2_first_name
+  first_name = gets
+  return unless first_name
+  first_name.chomp!
+  person = Person.new(first_name)
   if person.save
-    puts "#{name.capitalize} has been added."
-    record_desired_outcomes_for(person)
+    puts "#{first_name.capitalize} has been added."
+    generate_create_menu(person)
   else
-    puts person.errors
+    puts person.errors.to_s
     add_user
   end
 end
 
-def generate_create_menu
-  puts menu_1_select
+def generate_enter_passcode(person, i)
+  puts menu_2_passcode
+  passcode = gets
+  return unless passcode
+  passcode.chomp!
+  if person.id == passcode.to_i
+    diet = Diet.find_by_id(person.id)
+    if i == 2
+      view_diet(person, diet)
+    elsif i == 3
+      edit_diet_menu(person, diet)
+    else
+      delete_record(person, diet)
+    end
+  else
+    puts "Invalid passcode."
+    generate_enter_passcode(person, i)
+  end
+end
+
+def update_person(person, diet)
+  puts "Enter new first name"
+  new_first_name = gets
+  return unless new_first_name
+  new_first_name.chomp!
+  person.name = new_first_name
+  if person.save
+    puts "First name had been updated to #{new_first_name.capitalize}."
+    show_second_edit(person, diet)
+  else
+    puts person.errors.to_s
+    update_person(person)
+  end
+end
+
+def update_diet(person, diet)
+  puts select_diet_menu
   user_select = gets
   return unless user_select
   user_select.chomp!
   if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
-    puts "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
-    generate_create_menu
+    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
+    puts result
+    update_diet(person, diet)
   else
-    generate_meal_menu(user_select.to_i)
+    generate_meal_menu2(user_select.to_i, person, diet)
+  end
+end
+
+def generate_meal_menu2(num, person, diet)
+  puts sub_menu_1
+  diet_num = gets
+  return unless diet_num
+  diet_num.chomp!
+  if diet_num.to_i > 2 && diet_num.to_i < 9
+    diet.type = diet_type(num)
+    diet.freq = diet_num.to_i
+    if diet.update
+      puts "Diet has been updated to -- Diet: #{diet_type(num)} and Frequency: #{diet_num}."
+    else
+      puts diet.errors.to_s
+      generate_meal_menu2(num, person, diet)
+    end
+  else
+    puts "'#{diet_num}' is an incorrect entry. Enter a number between 3 and 9."
+    generate_meal_menu2(num, person, diet)
+  end
+end
+
+def edit_diet_menu(person, diet)
+  view_diet(person, diet)
+  puts "Enter 1 to edit name, if not hit enter."
+  input = gets
+  return unless input
+  input.chomp!
+  if input.to_i == 1
+    update_person(person, diet)
+  elsif input.length > 0 && input.to_i != 1
+    puts "'#{input}' is an incorrect selection. Enter 1 to edit or enter to pass."
+    edit_diet_menu(person, diet)
+  else
+    view_diet(person, diet)
+    show_second_edit(person, diet)
+  end
+end
+
+def show_second_edit(person, diet)
+  puts "Enter 2 to edit diet type, if not hit enter"
+  input_2 = gets
+  return unless input_2
+  input_2.chomp!
+  if input_2.to_i == 2
+    update_diet(person, diet)
+  end
+end
+def delete_record(person, diet)
+  puts "Enter 1 to delete user.. 2 to delete diet.. 3 to delete both"
+  input = gets
+  return unless input
+  input.chomp!
+  if input.to_i == 1
+    if person.delete
+      puts "'#{person.name}' has been deleted."
+    end
+  elsif input.to_i == 2
+    if diet.delete
+      puts "Diet for '#{person.name}' has been deleted."
+    end
+  elsif input.to_i == 3
+    if person.delete && diet.delete
+      puts "User #{person.name} and associated diet has been deleted."
+    end
+  else
+    puts "'#{input}' in an invalid entry. Select 1, 2 or 3"
+    delete_record(person, diet)
+  end
+end
+
+def view_diet(person, diet)
+  puts "Name: #{person.name.capitalize}"
+  puts "Diet: #{diet.type.capitalize} diet."
+  puts "Frequency: #{diet.freq} meals a day."
+end
+
+def generate_enter_name_menu_1(i)
+  puts menu_2_first_name
+  first_name = gets
+  return unless first_name
+  first_name.chomp!
+  person = Person.find_by_name(first_name)
+  if person
+    generate_enter_passcode(person, i)
+  else
+    puts "'#{first_name}' is not a valid user."
+    generate_enter_name_menu_1(i)
+  end
+end
+
+def generate_enter_name_menu_2
+  puts menu_2_first_name
+  first_name = gets
+  return unless first_name
+  first_name.chomp!
+  person = Person.find_by_name(first_name)
+  if person
+    generate_enter_passcode(person)
+  else
+    puts "'#{first_name}' is not a valid user."
+    generate_enter_name_menu_2
+  end
+end
+
+def generate_create_menu(person)
+  puts select_diet_menu
+  user_select = gets
+  return unless user_select
+  user_select.chomp!
+  if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
+    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
+    puts result
+    generate_create_menu(person)
+  else
+    generate_meal_menu(user_select.to_i, person)
   end
 end
 
@@ -93,18 +258,17 @@ def generate_main_menu
   return unless user_input
   user_input.chomp!
   if user_input.length < 1 || user_input.to_i < 1 || user_input.to_i > 4
-    puts "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4"
+    result = "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4"
+    puts result
     generate_main_menu
   elsif user_input.to_i == 1
-    #add_user
-    puts "Enter your first name."
-    name = gets
-    return unless name
-    name.chomp!
-    puts "#{name.capitalize} has been added."
-    generate_create_menu
+    add_user
+  elsif user_input.to_i == 2
+    generate_enter_name_menu_1(2)
+  elsif user_input.to_i == 3
+    generate_enter_name_menu_1(3)
   else
-    puts menu_2_select
+    generate_enter_name_menu_1(4)
   end
 end
 

@@ -38,6 +38,18 @@ class Diet
     execute_and_instantiate(statement)[0]
   end
 
+  def update
+    if self.valid_for_update?
+      if self.id
+        statement = "Update diets set type = ?, freq = ? where user_id = ?;"
+        Environment.database_connection.execute(statement, [type, freq, self.user_id])
+      end
+      true
+    else
+      false
+    end
+  end
+
   def save
     if self.valid?
       statement = "Insert into diets (user_id, type, freq) values (?, ?, ?);"
@@ -49,17 +61,35 @@ class Diet
     end
   end
 
+  def valid_for_update?
+    @errors = []
+    if !type.match /[a-zA-Z]/
+      @errors << "'#{self.type}' is not a valid entry as it doesn't include letters."
+    end
+    if freq.to_i < 3 || freq.to_i > 9
+      @errors << "'#{self.freq}' is not a valid entry."
+    end
+    @errors.empty?
+  end
+
   def valid?
     @errors = []
-    if !type.match /[a-zA-Z]/ || freq.to_i < 3 || freq.to_i > 9
-      @errors << "'#{self.type}' is not a valid entry."
-    elsif freq.to_i < 3 || freq.to_i > 9
+    if !type.match /[a-zA-Z]/
+      @errors << "'#{self.type}' is not a valid entry as it doesn't include letters."
+    end
+    if freq.to_i < 3 || freq.to_i > 9
       @errors << "'#{self.freq}' is not a valid entry."
     end
     if Diet.find_by_id(self.user_id)
       @errors << "#{self.user_id} already exists."
     end
     @errors.empty?
+  end
+
+  def delete
+    statement = "Delete from diets where user_id = ?;"
+    Environment.database_connection.execute(statement, self.user_id)
+    true
   end
 
   private
@@ -69,7 +99,7 @@ class Diet
     results = []
     rows.each do |row|
       diet = Diet.new(row["user_id"], row["type"], row["freq"])
-      diet.instance_variable_set(:@id,row["id"])
+      diet.instance_variable_set(:@id, row["id"])
       results << diet
     end
     results

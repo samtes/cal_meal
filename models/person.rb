@@ -36,9 +36,14 @@ class Person
 
   def save
     if self.valid?
-      statement = "Insert into people (name) values (?);"
-      Environment.database_connection.execute(statement, name)
-      @id = Environment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
+      if self.id
+        statement = "Update people set name = ? where id = ?;"
+        Environment.database_connection.execute(statement, [name, self.id])
+      else
+        statement = "Insert into people (name) values (?);"
+        Environment.database_connection.execute(statement, name)
+        @id = Environment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
+      end
       true
     else
       false
@@ -54,6 +59,12 @@ class Person
       @errors << "#{self.name} already exists."
     end
     @errors.empty?
+  end
+
+  def delete
+    statement = "Delete from people where id = ?;"
+    Environment.database_connection.execute(statement, self.id)
+    true
   end
 
   private

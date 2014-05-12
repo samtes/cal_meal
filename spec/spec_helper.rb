@@ -1,6 +1,3 @@
-require 'simplecov'
-SimpleCov.start
-
 require 'rspec/expectations'
 
 $LOAD_PATH << "lib"

@@ -25,10 +25,10 @@ EOS
   end
   let(:enter_name) do
     <<EOS
-Enter your first name.
+Enter your firstname (Example <Sam>)
 EOS
   end
-  let(:name_passcode) do
+  let(:enter_passcode) do
     <<EOS
 Enter your firstname followed by your passcode (Example <Sam 1234>)
 EOS
@@ -49,19 +49,19 @@ EOS
   context "The sub menu should display with valid entry 2" do
     let(:shell_output){ run_cal_meal_with_input("2") }
     it "should print the menu" do
-      shell_output.should include(name_passcode)
+      shell_output.should include(enter_name)
     end
   end
   context "The sub menu should display with valid entry 3" do
     let(:shell_output){ run_cal_meal_with_input("3") }
     it "should print the menu" do
-      shell_output.should include(name_passcode)
+      shell_output.should include(enter_name)
     end
   end
   context "The sub menu should display with valid entry 4" do
     let(:shell_output){ run_cal_meal_with_input("4") }
     it "should print the menu" do
-      shell_output.should include(name_passcode)
+      shell_output.should include(enter_name)
     end
   end
   context "Error message should display with no entry" do
@@ -110,15 +110,15 @@ EOS
     end
   end
   context "The sub menu 2 should display with valid entry" do
-    let(:shell_output){ run_cal_meal_with_input("1", "Tam", "1", "3") }
+    let(:shell_output){ run_cal_meal_with_input("1", "Tam", "1") }
     it "should print the correct name added message" do
-      shell_output.should include("3 Vegeterian meal diet added.")
+      shell_output.should include(sub_menu_2)
     end
   end
   context "The sub menu 2 should display with valid entry" do
     let(:shell_output){ run_cal_meal_with_input("1", "Bam") }
     it "should print the correct name added message" do
-      shell_output.should include("Bam has been added.")
+      shell_output.should include(sub_menu_1)
     end
   end
 end
