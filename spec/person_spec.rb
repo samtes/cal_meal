@@ -123,6 +123,7 @@ describe Person do
   context "#save" do
     let(:result){ Environment.database_connection.execute("Select * from people") }
     let(:person){ Person.new("Goo") }
+    let(:person2){ Person.create("Goo") }
     context "with a valid person" do
       before do
         person.stub(:valid?){ true }
@@ -138,6 +139,31 @@ describe Person do
       it "should save the records id" do
         person.save
         person.id == result[0]["id"]
+      end
+    end
+    context "with record already exists" do
+      before do
+        person2.name = "Hii"
+        Person.any_instance.stub(:valid?){ true }
+        person2
+      end
+      it "should update the record" do
+        person2.save
+        result[0]["name"] = "Hii"
+      end
+      it "should update the frequency" do
+        person2.save
+        result[0]["id"] = person2.id
+      end
+    end
+    context "update with invalid entry" do
+      before do
+        Person.any_instance.stub(:valid?){ false }
+        person2
+      end
+      it "should not update the record" do
+        person2.save
+        result.count.should == 0
       end
     end
   end
@@ -181,6 +207,18 @@ describe Person do
           person.errors.first.should == "#{name} already exists."
         end
       end
+    end
+  end
+
+  context "#delete" do
+    let(:result){ Environment.database_connection.execute("Select * from people") }
+    let(:foo){ Person.create("Foo") }
+    it "should delete a people" do
+      foo.delete
+      Person.find_by_name("Foo").should be_nil
+    end
+    it "should return nil with result" do
+      result.count.should == 0
     end
   end
 end

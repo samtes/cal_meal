@@ -126,7 +126,9 @@ describe Diet do
   context "#save" do
     let(:result){ Environment.database_connection.execute("Select * from diets") }
     let(:foo){ Person.create("Foo") }
+    let(:boo){ Person.create("Boo") }
     let(:diet){ Diet.new(foo.id, "Vegeterian", 4) }
+    let(:diet2){ Diet.create(foo.id, "Vegan", 5) }
     context "with a valid entry" do
       before do
         Diet.any_instance.stub(:valid?){ true }
@@ -155,6 +157,33 @@ describe Diet do
         result.count.should == 0
       end
     end
+    context "with record already exists" do
+      before do
+        diet2.type = "Full"
+        diet2.freq = 6
+        Diet.any_instance.stub(:valid_for_update?){ true }
+        diet2
+      end
+      it "should update the record" do
+        diet2.save
+        result[0]["type"] = "Full"
+      end
+      it "should update the frequency" do
+        diet2.save
+        result[0]["freq"] = 6
+      end
+    end
+    context "update with invalid entry" do
+      before do
+        Diet.any_instance.stub(:valid_for_update?){ false }
+        diet2
+      end
+      it "should not update the record" do
+        diet2.save
+        result[0]["type"] == "Vegan"
+      end
+    end
+
   end
 
   context "#valid?" do
@@ -185,5 +214,19 @@ describe Diet do
       end
     end
   end
+
+  context "#delete" do
+    let(:result){ Environment.database_connection.execute("Select * from diets") }
+    let(:foo){ Person.create("Foo") }
+    let(:diet){ Diet.new(foo.id, "Vegeterian", 4) }
+    it "should delete a diet" do
+      diet.delete
+      Diet.find_by_id(diet.id).should be_nil
+    end
+    it "should return nil with result" do
+      result.count.should == 0
+    end
+  end
+
 end
 
