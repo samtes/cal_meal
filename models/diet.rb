@@ -2,6 +2,7 @@ class Diet
   attr_accessor :type
   attr_accessor :freq
   attr_accessor :user_id
+  attr_accessor :detail
   attr_reader :id
   attr_reader :errors
 
@@ -9,6 +10,17 @@ class Diet
     @user_id = user_id
     @type = type
     @freq = freq
+    @detail = set_detail
+  end
+
+  def set_detail
+    if type == "Vegeterian"
+      "Garbonzo Bean Burger, Eggplant Parmesan, Addictive Sweet Potato, Spinach Quiche, Lentil Soup, Spaghetti Squash"
+    elsif type == "Vegan"
+      "Tofu Salad, Guacamole, Quinoa and Black Beans, Roasted Brussels, Refried Beans, Hummus, Lentile Soup, Cranberry Souce, Spinach Rice"
+    else
+      "Lasagna, Fillet Steak, Glazed Roasted Chicken, Meat Loaf with Chili Sauce, Saucy BBQ, Cheese Burger, Hot Dogs, Fish and Chips, "
+    end
   end
 
   def self.all
@@ -41,8 +53,8 @@ class Diet
   def update
     if self.valid_for_update?
       if self.id
-        statement = "Update diets set type = ?, freq = ? where user_id = ?;"
-        Environment.database_connection.execute(statement, [type, freq, self.user_id])
+        statement = "Update diets set type = ?, freq = ?, detail = ? where user_id = ?;"
+        Environment.database_connection.execute(statement, [type, freq, detail, self.user_id])
       end
       true
     else
@@ -52,8 +64,8 @@ class Diet
 
   def save
     if self.valid?
-      statement = "Insert into diets (user_id, type, freq) values (?, ?, ?);"
-      Environment.database_connection.execute(statement, [user_id, type, freq])
+      statement = "Insert into diets (user_id, type, freq, detail) values (?, ?, ?, ?);"
+      Environment.database_connection.execute(statement, [user_id, type, freq, detail])
       @id = Environment.database_connection.execute("SELECT last_insert_rowid();")[0][0]
       true
     else

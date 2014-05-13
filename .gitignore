@@ -1,7 +1,6 @@
 *.gem
 *.rbc
-37
-rspec
+.rspec
 /.config
 /coverage/
 /InstalledFiles

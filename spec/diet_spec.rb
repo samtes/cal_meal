@@ -19,6 +19,14 @@ describe Diet do
         diets_attrs.should == [[foo.id, "Vegeterian", 4], [boo.id, "Vegan", 3], [hoo.id, "Full", 5]]
       end
     end
+    context "with one diets in the db" do
+      let!(:foo){ Person.create("Foo") }
+      let!(:vegi){ Diet.create(foo.id, "Vegeterian", 4) }
+      it "should return the diets" do
+        diets_attrs = Diet.all.map{ |diet| [diet.user_id,diet.type,diet.freq,diet.detail] }
+        diets_attrs.should == [[foo.id, "Vegeterian", 4, "Garbonzo Bean Burger, Eggplant Parmesan, Addictive Sweet Potato, Spinach Quiche, Lentil Soup, Spaghetti Squash"]]
+      end
+    end
   end
 
   context ".count" do

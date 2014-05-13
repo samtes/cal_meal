@@ -6,6 +6,7 @@ $LOAD_PATH << "models"
 require 'environment'
 require 'person'
 require 'diet'
+require 'vegeterian'
 
 Environment.environment = "test"
 
@@ -25,6 +26,7 @@ RSpec.configure do |config|
   config.after(:each) do
     Environment.database_connection.execute("DELETE FROM people;")
     Environment.database_connection.execute("DELETE FROM diets;")
+    Environment.database_connection.execute("DELETE FROM veggie_meals;")
   end
 end
 

@@ -7,7 +7,7 @@ require 'environment'
 Environment.environment = ENV["ENVIRONMENT"] || "production"
 $stderr = $stdout
 
-#require 'smart_colored/extend'
+require 'smart_colored/extend'
 require 'person'
 require 'diet'
 
@@ -50,7 +50,7 @@ end
 
 
 def diet_type(i)
-  types = ["vegeterian", "Vegan", "Full"]
+  types = ["Vegeterian", "Vegan", "Full"]
   types[i-1].capitalize
 end
 
@@ -63,10 +63,10 @@ def generate_meal_menu(diet, person)
     type = diet_type(diet)
     diet = Diet.new(person.id, type, diet_num.to_i)
     if diet.save
-      puts "#{diet_num} #{type} meal diet added and your passcode is #{person.id}."
+      puts "#{diet_num} #{type} meal diet added and your passcode is #{person.id}.".green
     end
   else
-    puts diet.errors.to_s
+    puts "'#{diet_num}' is not a valid entry. Enter a number between 3 and 9.".red
     generate_meal_menu(diet, person)
   end
 end
@@ -78,10 +78,10 @@ def add_user
   first_name.chomp!
   person = Person.new(first_name)
   if person.save
-    puts "#{first_name.capitalize} has been added."
+    puts "#{first_name} has been added.".green
     generate_create_menu(person)
   else
-    puts person.errors.to_s
+    puts person.errors.join.red
     add_user
   end
 end
@@ -101,7 +101,7 @@ def generate_enter_passcode(person, i)
       delete_record(person, diet)
     end
   else
-    puts "Invalid passcode."
+    puts "Invalid passcode.".red
     generate_enter_passcode(person, i)
   end
 end
@@ -116,7 +116,7 @@ def update_person(person, diet)
     puts "First name had been updated to #{new_first_name.capitalize}."
     show_second_edit(person, diet)
   else
-    puts person.errors.to_s
+    puts person.errors.join.red
     update_person(person)
   end
 end
@@ -127,7 +127,7 @@ def update_diet(person, diet)
   return unless user_select
   user_select.chomp!
   if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
-    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
+    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3".red
     puts result
     update_diet(person, diet)
   else
@@ -144,19 +144,21 @@ def generate_meal_menu2(num, person, diet)
     diet.type = diet_type(num)
     diet.freq = diet_num.to_i
     if diet.update
-      puts "Diet has been updated to -- Diet: #{diet_type(num)} and Frequency: #{diet_num}."
+      puts "Diet has been updated to: #{diet_type(num)} and Frequency: #{diet_num}."
     else
-      puts diet.errors.to_s
+      puts diet.errors.join.red
       generate_meal_menu2(num, person, diet)
     end
   else
-    puts "'#{diet_num}' is an incorrect entry. Enter a number between 3 and 9."
+    puts "'#{diet_num}' is an incorrect entry. Enter a number between 3 and 9.".red
     generate_meal_menu2(num, person, diet)
   end
 end
 
 def edit_diet_menu(person, diet)
-  view_diet(person, diet)
+  puts "Name: #{person.name.capitalize}".yellow
+  puts "Diet: #{diet.type.capitalize} diet.".yellow
+  puts "Frequency: #{diet.freq} meals a day.".yellow
   puts "Enter 1 to edit name, if not hit enter."
   input = gets
   return unless input
@@ -164,10 +166,12 @@ def edit_diet_menu(person, diet)
   if input.to_i == 1
     update_person(person, diet)
   elsif input.length > 0 && input.to_i != 1
-    puts "'#{input}' is an incorrect selection. Enter 1 to edit or enter to pass."
+    puts "'#{input}' is an incorrect selection. Enter 1 to edit or enter to pass.".red
     edit_diet_menu(person, diet)
   else
-    view_diet(person, diet)
+    puts "Name: #{person.name.capitalize}".yellow
+    puts "Diet: #{diet.type.capitalize} diet.".yellow
+    puts "Frequency: #{diet.freq} meals a day.".yellow
     show_second_edit(person, diet)
   end
 end
@@ -182,7 +186,7 @@ def show_second_edit(person, diet)
   end
 end
 def delete_record(person, diet)
-  puts "Enter 1 to delete user.. 2 to delete diet.. 3 to delete both"
+  puts "Enter 1 to delete user.. 2 to delete user and diet"
   input = gets
   return unless input
   input.chomp!
@@ -191,23 +195,23 @@ def delete_record(person, diet)
       puts "'#{person.name}' has been deleted."
     end
   elsif input.to_i == 2
-    if diet.delete
-      puts "Diet for '#{person.name}' has been deleted."
-    end
-  elsif input.to_i == 3
     if person.delete && diet.delete
       puts "User #{person.name} and associated diet has been deleted."
     end
   else
-    puts "'#{input}' in an invalid entry. Select 1, 2 or 3"
+    puts "'#{input}' in an invalid entry. Select 1 or 2".red
     delete_record(person, diet)
   end
 end
 
 def view_diet(person, diet)
-  puts "Name: #{person.name.capitalize}"
-  puts "Diet: #{diet.type.capitalize} diet."
-  puts "Frequency: #{diet.freq} meals a day."
+  puts "Name: #{person.name.capitalize}".yellow
+  puts "Diet: #{diet.type.capitalize} diet.".yellow
+  puts "Frequency: #{diet.freq} meals a day.".yellow
+  puts "**************************************".red
+  puts " SELECT YOUR MEAL FROM THE LIST BELOW".green
+  puts "**************************************".red
+  diet.detail.split(", ").each{|meal| meal}
 end
 
 def generate_enter_name_menu_1(i)
@@ -219,7 +223,7 @@ def generate_enter_name_menu_1(i)
   if person
     generate_enter_passcode(person, i)
   else
-    puts "'#{first_name}' is not a valid user."
+    puts "'#{first_name}' is not a valid user.".red
     generate_enter_name_menu_1(i)
   end
 end
@@ -233,7 +237,7 @@ def generate_enter_name_menu_2
   if person
     generate_enter_passcode(person)
   else
-    puts "'#{first_name}' is not a valid user."
+    puts "'#{first_name}' is not a valid user.".red
     generate_enter_name_menu_2
   end
 end
@@ -244,7 +248,7 @@ def generate_create_menu(person)
   return unless user_select
   user_select.chomp!
   if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
-    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3"
+    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3".red
     puts result
     generate_create_menu(person)
   else
@@ -258,7 +262,7 @@ def generate_main_menu
   return unless user_input
   user_input.chomp!
   if user_input.length < 1 || user_input.to_i < 1 || user_input.to_i > 4
-    result = "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4"
+    result = "'#{user_input}' is an incorrect selection! Please enter 1, 2, 3 or 4".red
     puts result
     generate_main_menu
   elsif user_input.to_i == 1
