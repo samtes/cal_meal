@@ -113,7 +113,7 @@ def update_person(person, diet)
   new_first_name.chomp!
   person.name = new_first_name
   if person.save
-    puts "First name had been updated to #{new_first_name.capitalize}."
+    puts "First name has been updated to #{new_first_name.capitalize}."
     show_second_edit(person, diet)
   else
     puts person.errors.join.red
