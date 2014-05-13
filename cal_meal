@@ -126,9 +126,8 @@ def update_diet(person, diet)
   user_select = gets
   return unless user_select
   user_select.chomp!
-  if user_select.length < 1 || user_select.to_i < 1 || user_select.to_i > 3
-    result = "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3".red
-    puts result
+  if user_select.length < 1 || user_select.to_i < 2 || user_select.to_i > 3
+    puts "'#{user_select}' is an incorrect selection! Please enter 1, 2 or 3".red
     update_diet(person, diet)
   else
     generate_meal_menu2(user_select.to_i, person, diet)
@@ -144,7 +143,7 @@ def generate_meal_menu2(num, person, diet)
     diet.type = diet_type(num)
     diet.freq = diet_num.to_i
     if diet.update
-      puts "Diet has been updated to: #{diet_type(num)} and Frequency: #{diet_num}."
+      puts "Diet has been updated to: #{diet_type(num)} and Frequency: #{diet_num}.".green
     else
       puts diet.errors.join.red
       generate_meal_menu2(num, person, diet)
@@ -183,8 +182,14 @@ def show_second_edit(person, diet)
   input_2.chomp!
   if input_2.to_i == 2
     update_diet(person, diet)
+  elsif input_2.length > 0 && input_2.to_i != 2
+    puts "'#{input_2}' is an incorrect selection. Enter 2 to edit or enter to pass.".red
+    show_second_edit(person, diet)
+  else
+    puts "Diet has not been edited.".yellow
   end
 end
+
 def delete_record(person, diet)
   puts "Enter 1 to delete user.. 2 to delete user and diet"
   input = gets
@@ -211,7 +216,8 @@ def view_diet(person, diet)
   puts "**************************************".red
   puts " SELECT YOUR MEAL FROM THE LIST BELOW".green
   puts "**************************************".red
-  diet.detail.split(", ").each{|meal| meal}
+  diet.detail.split(", ").each{|meal| puts meal.yellow}
+  nil
 end
 
 def generate_enter_name_menu_1(i)
