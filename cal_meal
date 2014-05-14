@@ -113,7 +113,7 @@ def update_person(person, diet)
   new_first_name.chomp!
   person.name = new_first_name
   if person.save
-    puts "First name has been updated to #{new_first_name.capitalize}."
+    puts "First name has been updated to #{new_first_name.capitalize}.".green
     show_second_edit(person, diet)
   else
     puts person.errors.join.red
@@ -201,7 +201,7 @@ def delete_record(person, diet)
     end
   elsif input.to_i == 2
     if person.delete && diet.delete
-      puts "User #{person.name} and associated diet has been deleted."
+      puts "User #{person.name} and associated diet has been deleted.".yellow
     end
   else
     puts "'#{input}' in an invalid entry. Select 1 or 2".red

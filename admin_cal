@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << "lib"
+$LOAD_PATH << "models"
+
+require 'environment'
+Environment.environment = ENV["ENVIRONMENT"] || "production"
+$stderr = $stdout
+
+require 'smart_colored/extend'
+require 'person'
+require 'diet'
+
+def main_menu
+<<EOS
+Hi Sam, what do you want to do?
+EOS
+end
+def diet_menu
+<<EOS
+Select the type of diet (Enter the number for your choice)
+1. Vegeterian
+2. Vegan
+3. Full
+EOS
+end
+
+def diet_type(i)
+  types = ["Vegeterian", "Vegan", "Full"]
+  types[i-1].capitalize
+end
+
+def show_users
+  people = Person.all
+  people.each { |person| puts "Name: #{person.name} ==> Passcode: #{person.id}".yellow }
+  hi_admin
+end
+
+def show_diets
+  diets = Diet.all
+  diets.each { |meal| puts "User passcode ==> #{meal.user_id} ==> Type: #{meal.type} ==> Frequency: #{meal.freq}".yellow}
+  hi_admin
+end
+
+def show_all
+  people = Person.all
+  diets = Diet.all
+  people.each  do |person|
+    diets.each do |meal|
+      if person.id == meal.user_id
+        puts "Name: #{person.name} ==> Passcode: #{person.id} ==> Type: #{meal.type} ==> Frequency: #{meal.freq}".yellow
+      end
+    end
+  end
+  hi_admin
+end
+
+def diet_details
+  puts diet_menu
+  option = gets
+  return unless option
+  option.chomp!
+  if option.to_i > 0 && option.to_i < 4
+    diet = Diet.one(diet_type(option.to_i))
+    puts "Diet type: #{diet.type}".yellow
+    puts "MEALS:".yellow
+    diet.detail.split(", ").each { |meal| puts meal.green }
+  end
+  hi_admin
+end
+
+def menu
+  puts "u # to view all users".yellow
+  puts "d # to view all diets".yellow
+  puts "a # to view all users and associated diets".yellow
+  puts "dd # to view all the diet meal details".yellow
+  puts nil
+  hi_admin
+end
+
+def hi_admin
+  puts nil
+  puts main_menu.blue
+  input = gets
+  return unless input
+  input.chomp!
+  if input == "u"
+    show_users
+  elsif input == "d"
+    show_diets
+  elsif input == "a"
+    show_all
+  elsif input == "dd"
+    diet_details
+  elsif input == "exit"
+    return
+  else
+    menu
+  end
+end
+
+hi_admin

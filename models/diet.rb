@@ -277,6 +277,11 @@ class Diet
     execute_and_instantiate(statement)
   end
 
+  def self.one(type)
+    statement = "Select * from diets where type = ? limit 1 ;"
+    execute_and_instantiate(statement, type)[0]
+  end
+
   def self.count
     statement = "Select count(*) from diets;"
     result = Environment.database_connection.execute(statement)

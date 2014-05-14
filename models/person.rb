@@ -12,6 +12,7 @@ class Person
     execute_and_instantiate(statement)
   end
 
+
   def self.count
     statement = "Select count(*) from people;"
     result = Environment.database_connection.execute(statement)
